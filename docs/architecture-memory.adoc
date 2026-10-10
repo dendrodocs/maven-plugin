@@ -34,7 +34,7 @@ Source: link:arc42/06-runtime-view.adoc[arc42].
 
 == deployment
 
-Plugin in Maven, analyzer in child JVM; Windows/Linux Maven 3.9.11 and 3.10.0 CI with PR-read-only caches and summaries; compiled-adapter CodeQL with fork SARIF; uncached manual Central staging.
+Plugin in Maven, analyzer in child JVM; Windows/Linux Maven 3.9.11 and 3.10.0 CI with PR-read-only caches and summaries; adapter/workflow CodeQL with fork SARIF; uncached manual Central staging.
 Source: link:arc42/07-deployment-view.adoc[arc42].
 
 == cross cutting

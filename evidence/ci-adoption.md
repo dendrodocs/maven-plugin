@@ -19,3 +19,5 @@ The summary script was checked against real reports (28 unit tests and six succe
 Remote results and security-alert status must be verified for the committed revision. Local reporting checks do not prove GitHub token settings, fork behavior, signing credentials, or Central staging.
 
 The exact CodeQL Maven command also passed locally on JDK 21.0.4 and Maven 3.10.0: clean package with maven.test.skip, invoker.skip, and jacoco.skip enabled. This verifies compilation, not a local CodeQL query run.
+
+GitHub default CodeQL setup was found configured for actions and java-kotlin with weekly scanning. The explicit workflow preserves both languages: manual compiled Java analysis and no-build Actions analysis. Default setup is replaced to avoid overlapping configurations; the workflow supplies all action pins and trust boundaries.

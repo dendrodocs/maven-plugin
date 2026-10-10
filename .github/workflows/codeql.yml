@@ -14,7 +14,15 @@ concurrency:
   cancel-in-progress: true
 jobs:
   analyze:
-    name: Analyze Java adapter
+    name: Analyze (${{ matrix.language }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: actions
+            build-mode: none
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -24,7 +32,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      - if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: '21'
@@ -37,16 +46,17 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
-          languages: java-kotlin
-          build-mode: manual
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
           tools: linked
           dependency-caching: false
       - name: Build adapter for analysis
+        if: matrix.build-mode == 'manual'
         run: ./mvnw --batch-mode --no-transfer-progress -Dmaven.test.skip=true -Dinvoker.skip=true -Djacoco.skip=true clean package
       - name: Analyze
         uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
-          category: /language:java-kotlin
+          category: /language:${{ matrix.language }}
           output: target/codeql
           # Fork builds keep SARIF evidence without writing to code scanning.
           upload: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && 'never' || 'always' }}
@@ -55,7 +65,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: codeql-java
+          name: codeql-${{ matrix.language }}
           path: target/codeql/*.sarif
           if-no-files-found: warn
           retention-days: 14

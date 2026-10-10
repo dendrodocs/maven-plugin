@@ -12,7 +12,7 @@ Artifacts expire after 14 days:
 | --- | --- |
 | verification-OS-maven-VERSION | Coverage HTML/XML, test XML, analyzer audit JSON, and integration logs; attempted even after failure |
 | plugin-build-COMMIT | JAR and committed POM from the successful Ubuntu/Maven 3.10 job; an unsigned build for inspection |
-| codeql-java | SARIF results from the compiled adapter analysis; attempted even after failure |
+| codeql-LANGUAGE | SARIF results from compiled-adapter and GitHub workflow analysis; attempted even after failure |
 
 ## Trust and cache boundaries
 
@@ -20,7 +20,7 @@ Actions are pinned to full commits, runners are explicit, credentials are not pe
 
 Setup Java derives Maven dependency-cache keys from OS/architecture and the root/fixture POMs plus wrapper properties. The compatibility distribution is selected before computing keys, separating Maven baselines. Only dependency repositories and setup-java's wrapper/JDK caches are cached; settings, signing keys, workspaces, and generated reports are excluded. All pull requests restore caches without saving. Release staging deliberately uses a fresh dependency repository and no CI cache.
 
-The [CodeQL workflow](../.github/workflows/codeql.yml) expands only its analysis job to contents-read and security-events-write for code-scanning upload. Fork PR tokens are reduced by GitHub; the workflow explicitly disables code-scanning and database upload for forks and retains SARIF as an artifact. It uses no release secrets and no package-write permission.
+The [CodeQL workflow](../.github/workflows/codeql.yml) expands only its analysis job to contents-read and security-events-write for code-scanning upload. Fork PR tokens are reduced by GitHub; the workflow explicitly disables code-scanning and database upload for forks and retains SARIF as an artifact. It uses no release secrets and no package-write permission. A second matrix entry scans GitHub workflow files with the actions language and no build. This explicit workflow replaces GitHub default setup, which had automatically enabled both Java and Actions scanning.
 
 Signing and Central credentials are scoped to the manual main-branch [release workflow](../.github/workflows/release.yml), behind the maven-central environment. The committed version is checked without rewriting the POM. Central auto-publication is disabled. Environment reviewers and branch protections still require administrator verification; workflow files do not establish those settings.
 
