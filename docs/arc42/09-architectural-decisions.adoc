@@ -7,6 +7,7 @@
 | ID | Decision | Status
 | link:../adr/ADR-001-isolated-analyzer.adoc[ADR-001] | Resolve and run the published analyzer in an isolated child JVM | Proposed, implemented
 | link:../adr/ADR-002-reliable-generation.adoc[ADR-002] | Syntax preflight and staged per-module output at process-classes | Proposed, implemented
+| link:../adr/ADR-003-selectable-tools.adoc[ADR-003] | Select standalone tools with Java as the default and conditional Java checks | Draft, implemented
 |===
 
 These decisions document the initial implementation for maintainer review.

@@ -5,8 +5,8 @@
 Mojo:: One executable Maven plugin goal.
 Reactor:: The ordered set of modules in a Maven build.
 Intermediary JSON:: DendroDocs structural descriptions shared with downstream renderers.
-Source root:: A directory registered as a main Java source tree for one module.
-Standalone analyzer:: The published shaded dev.dendrodocs:tool JAR.
+Source root:: A directory registered as a main source tree for one module or explicitly configured for the selected tool.
+Standalone analyzer:: An executable JAR implementing the common CLI and JSON contract; dev.dendrodocs:tool is the Java default.
 Schema:: The JSON contract embedded in the analyzer.
 Class directory:: Maven's compiled output or an un-packaged reactor dependency.
 Fresh output:: A new per-root file in the current invocation's unique workspace.

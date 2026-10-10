@@ -23,7 +23,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.resources.propertiesEncoding>UTF-8</maven.resources.propertiesEncoding>
     <project.build.outputTimestamp>2026-10-10T00:00:00Z</project.build.outputTimestamp>
-    <dendrodocs.tool.version>0.1.0</dendrodocs.tool.version>
+    <dendrodocs.tool.artifact>dev.dendrodocs:tool:0.1.0</dendrodocs.tool.artifact>
     <jackson.version>2.22.3</jackson.version>
     <maven.version>3.9.11</maven.version>
     <maven.plugin.tools.version>3.16.0</maven.plugin.tools.version>

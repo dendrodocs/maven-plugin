@@ -17,7 +17,7 @@ Per-module output supports Maven parallel reactors.
 == Schema and diagnostic boundaries
 
 The analyzer owns schema validation. Fresh output detects its silent validation failure.
-The plugin detects malformed syntax, malformed JSON, and duplicate names without altering schema conventions.
+The plugin detects malformed JSON and duplicate names for every tool, and Java syntax or omitted declarations only when Java validation is enabled. It does not alter schema conventions.
 Diagnostics are capped to 4096 characters per failed analyzer process.
 
 NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

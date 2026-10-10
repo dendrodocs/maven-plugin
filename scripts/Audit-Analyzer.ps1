@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$ArtifactPath,
+    [string]$ToolArtifact,
     [string]$OutputPath = 'target/security/analyzer-audit.json',
     [switch]$FailOnFindings
 )
@@ -9,9 +10,20 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 [xml]$pom = Get-Content (Join-Path $repoRoot 'pom.xml') -Raw
-$version = [string]$pom.project.properties.'dendrodocs.tool.version'
+if (-not $ToolArtifact) { $ToolArtifact = [string]$pom.project.properties.'dendrodocs.tool.artifact' }
+$parts = $ToolArtifact.Split(':')
+if ($parts.Count -lt 3 -or $parts.Count -gt 5 -or @($parts | Where-Object { $_ -notmatch '^[A-Za-z0-9_.+\-]+$' }).Count -gt 0) {
+    throw 'ToolArtifact must be groupId:artifactId[:jar[:classifier]]:version.'
+}
+$version = $parts[-1]
+if (($parts.Count -gt 3 -and $parts[2] -cne 'jar') -or $version -in @('LATEST', 'RELEASE')) {
+    throw 'ToolArtifact requires a JAR and a concrete version.'
+}
 if (-not $ArtifactPath) {
-    $ArtifactPath = Join-Path $repoRoot "target/it-repository/dev/dendrodocs/tool/$version/tool-$version.jar"
+    $groupPath = $parts[0].Replace('.', '/')
+    $artifactId = $parts[1]
+    $classifier = if ($parts.Count -eq 5) { '-' + $parts[3] } else { '' }
+    $ArtifactPath = Join-Path $repoRoot "target/it-repository/$groupPath/$artifactId/$version/$artifactId-$version$classifier.jar"
 }
 if (-not (Test-Path -LiteralPath $ArtifactPath -PathType Leaf)) {
     throw "Analyzer artifact missing: $ArtifactPath. Run Maven verify first."
@@ -64,7 +76,7 @@ New-Item -ItemType Directory -Force -Path (Split-Path $absoluteOutput -Parent) |
 [pscustomobject]@{
     scannedAt = [DateTime]::UtcNow.ToString('o')
     source = 'https://api.osv.dev/v1/querybatch'
-    artifact = "dev.dendrodocs:tool:$version"
+    artifact = $ToolArtifact
     artifactSha256 = (Get-FileHash -LiteralPath $ArtifactPath -Algorithm SHA256).Hash.ToLowerInvariant()
     embeddedComponents = $components
     findings = $findings

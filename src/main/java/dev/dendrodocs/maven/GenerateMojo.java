@@ -45,6 +45,16 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
     private RepositorySystemSession repositorySession;
 
+    /** Standalone analyzer coordinates: groupId:artifactId[:jar[:classifier]]:version.
+     * Defaults to the embedded Java tool coordinates. */
+    @Parameter(property = "dendrodocs.toolArtifact")
+    private String toolArtifact;
+
+    /** Java syntax and omitted-declaration checks. Defaults to true for dev.dendrodocs:tool
+     * and false for other tools, which own their language validation. */
+    @Parameter(property = "dendrodocs.validateJava")
+    private Boolean validateJava;
+
     /** Optional replacement for Maven's registered main source roots. */
     @Parameter
     private List<File> sourceDirectories;
@@ -84,6 +94,9 @@ public class GenerateMojo extends AbstractMojo {
                 getLog().info("No main source directories for " + project.getArtifactId());
                 return;
             }
+            var tool = selectedTool();
+            boolean checkJava = javaValidationEnabled(tool);
+            getLog().info("Using DendroDocs tool " + tool + "; Java preflight: " + checkJava);
             Path destination = absolute(outputFile.toPath());
             Files.createDirectories(destination.getParent());
             workspace = Files.createTempDirectory(destination.getParent(), ".dendrodocs-");
@@ -93,7 +106,7 @@ public class GenerateMojo extends AbstractMojo {
             Set<String> typeNames = new HashSet<>();
             int index = 0;
             for (Path root : roots) {
-                Set<String> expectedTypes = validateSyntax(root);
+                Set<String> expectedTypes = checkJava ? validateSyntax(root) : new HashSet<>();
                 Path output = workspace.resolve("root-" + index++ + ".json");
                 analyzeRoot(root, output, classpath);
                 if (!Files.isRegularFile(output)) {
@@ -143,15 +156,8 @@ public class GenerateMojo extends AbstractMojo {
 
     // Package visibility keeps the orchestration independently testable without a process mock framework.
     void analyzeRoot(Path root, Path output, List<String> classpath) throws IOException, InterruptedException {
-        var configuration = new java.util.Properties();
-        try (var resource = GenerateMojo.class.getResourceAsStream("/dendrodocs.properties")) {
-            if (resource == null) {
-                throw new IOException("Missing embedded analyzer version");
-            }
-            configuration.load(resource);
-        }
         var request = new ArtifactRequest()
-                .setArtifact(new DefaultArtifact("dev.dendrodocs:tool:jar:" + configuration.getProperty("tool.version")))
+                .setArtifact(selectedTool())
                 .setRepositories(project.getRemotePluginRepositories());
         try {
             Path toolJar = repositorySystem.resolveArtifact(repositorySession, request).getArtifact().getFile().toPath();
@@ -159,6 +165,49 @@ public class GenerateMojo extends AbstractMojo {
         } catch (ArtifactResolutionException exception) {
             throw new IOException("Cannot resolve the DendroDocs analyzer; check plugin repositories and offline cache", exception);
         }
+    }
+
+    DefaultArtifact selectedTool() throws IOException {
+        String coordinates = toolArtifact;
+        if (coordinates == null) {
+            var configuration = new java.util.Properties();
+            try (var resource = GenerateMojo.class.getResourceAsStream("/dendrodocs.properties")) {
+                if (resource == null) {
+                    throw new IOException("Missing embedded analyzer coordinates");
+                }
+                configuration.load(resource);
+            }
+            coordinates = configuration.getProperty("tool.artifact");
+        }
+        String[] parts = coordinates == null ? new String[0] : coordinates.split(":", -1);
+        if (parts.length < 3 || parts.length > 5) {
+            throw invalidToolCoordinates();
+        }
+        for (String part : parts) {
+            if (!part.matches("[A-Za-z0-9_.+\\-]+")) {
+                throw invalidToolCoordinates();
+            }
+        }
+        String version = parts[parts.length - 1];
+        if ("LATEST".equalsIgnoreCase(version) || "RELEASE".equalsIgnoreCase(version)
+                || (parts.length > 3 && !"jar".equals(parts[2]))) {
+            throw invalidToolCoordinates();
+        }
+        try {
+            return new DefaultArtifact(coordinates);
+        } catch (IllegalArgumentException exception) {
+            throw new IOException("Invalid dendrodocs.toolArtifact", exception);
+        }
+    }
+
+    boolean javaValidationEnabled(DefaultArtifact tool) {
+        return validateJava != null ? validateJava
+                : "dev.dendrodocs".equals(tool.getGroupId()) && "tool".equals(tool.getArtifactId());
+    }
+
+    private IOException invalidToolCoordinates() {
+        return new IOException("dendrodocs.toolArtifact must be groupId:artifactId[:jar[:classifier]]:version "
+                + "with nonempty fields and a concrete version");
     }
 
     private Path absolute(Path path) {

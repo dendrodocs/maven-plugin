@@ -2,15 +2,16 @@
 
 == Integration strategy
 
-Reuse the published analyzer and isolate its shaded libraries in a child JVM.
+Resolve the selected standalone artifact through Maven and isolate its libraries in a child JVM, defaulting to the published Java analyzer.
 Bind generation to process-classes so generated sources and reactor class directories exist.
-Use the JDK compiler's parse-only API to reject malformed input before the analyzer can silently omit it.
+For the default Java tool, use the JDK compiler's parse-only API to reject malformed input before the analyzer can silently omit it.
+Other tools handle their own language validation; validateJava can override the identity-based default.
 This syntax check does not perform annotation processing or replace structural analysis.
 
 == Output strategy
 
 Analyze separate non-overlapping source roots into fresh temporary files.
-Require each root's output to exist and parse as a JSON array, check that top-level declarations were not omitted, then merge with duplicate detection.
+Require each root's output to exist and parse as a JSON array, check that Java top-level declarations were not omitted when Java validation is enabled, then merge with duplicate detection.
 Replace the destination only after the complete result is ready.
 Preserve the previous file on failure and fail the build.
 

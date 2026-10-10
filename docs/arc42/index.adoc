@@ -2,7 +2,7 @@
 :toc:
 :sectnums:
 
-A Maven adapter that generates DendroDocs intermediary JSON through the published Java analyzer.
+A Maven adapter that generates DendroDocs intermediary JSON through a selectable standalone analyzer, defaulting to the published Java tool.
 
 Owner:: DendroDocs
 Last reviewed:: Pending maintainer review

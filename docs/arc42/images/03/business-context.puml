@@ -2,13 +2,13 @@
 actor Developer
 component "Maven build" as Maven
 component "DendroDocs Maven plugin" as Plugin
-component "Java analyzer\n(child JVM)" as Tool
+component "Selected analyzer\n(Java default, child JVM)" as Tool
 database "Maven repository" as Repo
 artifact "Module intermediary JSON" as JSON
 component "Downstream renderer" as Renderer
 Developer --> Maven
 Maven --> Plugin : module, sources, dependencies
-Plugin --> Repo : resolve pinned analyzer
+Plugin --> Repo : resolve selected artifact
 Plugin --> Tool : sources, JAR classpath
 Tool --> Plugin : fresh validated JSON
 Plugin --> JSON : staged replacement

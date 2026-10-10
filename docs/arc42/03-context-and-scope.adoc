@@ -2,7 +2,7 @@
 
 == Business context
 
-Maven build → DendroDocs plugin → Java analyzer → module JSON → downstream renderer.
+Maven build → DendroDocs plugin → selected analyzer (Java default) → module JSON → downstream renderer.
 The plugin is the build adapter; the analyzer owns structural analysis and schema validation.
 
 == Technical context

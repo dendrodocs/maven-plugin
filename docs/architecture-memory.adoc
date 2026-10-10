@@ -9,7 +9,7 @@ Source: link:arc42/01-introduction-and-goals.adoc[arc42].
 
 == constraints
 
-Public DendroDocs repo, MIT, Maven Central, JDK21+, Maven3.9.11+, UTF-8 Java21 sources.
+Public DendroDocs repo, MIT, Maven Central, JDK21+, Maven3.9.11+, Java-default UTF-8 Java21 sources; selectable standalone tools own other language validation.
 Source: link:arc42/02-architecture-constraints.adoc[arc42].
 
 == context
@@ -19,7 +19,7 @@ Source: link:arc42/03-context-and-scope.adoc[arc42].
 
 == strategy
 
-Resolve standalone analyzer, syntax preflight, detect omitted top-level types, isolate process, stage and merge output.
+Resolve selected standalone analyzer with Java default, conditional Java preflight and declaration checks, isolate process, stage and merge output.
 Source: link:arc42/04-solution-strategy.adoc[arc42].
 
 == building blocks
@@ -44,7 +44,7 @@ Source: link:arc42/08-crosscutting-concepts.adoc[arc42].
 
 == decisions
 
-ADR001 isolation and ADR002 reliable generation are proposed and implemented for review.
+ADR001 isolation and ADR002 reliable generation are proposed; ADR003 tool selection is draft; all implemented for review.
 Source: link:arc42/09-architectural-decisions.adoc[arc42].
 
 == quality
@@ -64,14 +64,14 @@ Source: link:arc42/12-glossary.adoc[arc42].
 
 == Defaults and decisions
 
-Use Java 21 syntax, JDK 21+, Maven 3.9.11+, UTF-8, and the pinned standalone analyzer 0.1.0.
+Use JDK 21+, Maven 3.9.11+, and dev.dendrodocs:tool:0.1.0 by default. Java validation uses UTF-8 and Java 21 syntax; alternative tools own language validation unless explicitly overridden.
 These implemented defaults are documented in arc42; isolation and staged output ADRs remain proposed for maintainer review.
 Use Markdown guides, AsciiDoc architecture, and PlantUML.
 
 == Open questions
 
 Resolve analyzer advisory matches before production staging.
-Verify Windows/Linux CI, Central credentials, signing, environment reviewers, and branch protection.
+Recheck Windows/Linux CI for each change; verify Central credentials, signing, environment reviewers, and branch protection.
 Large-project latency, complete analyzer syntax support, and renderer coverage remain unmeasured.
 
 == Source map
@@ -79,5 +79,7 @@ Large-project latency, complete analyzer syntax support, and renderer coverage r
 * link:arc42/index.adoc[Arc42 index]
 * link:adr/ADR-001-isolated-analyzer.adoc[Isolated analyzer]
 * link:adr/ADR-002-reliable-generation.adoc[Reliable generation]
+* link:adr/ADR-003-selectable-tools.adoc[Selectable tools]
+* link:tool-contract.md[Standalone tool contract]
 * link:security/README.md[Dependency intake]
 * link:../evidence/analyzer-dependency-audit.json[Analyzer assessment]

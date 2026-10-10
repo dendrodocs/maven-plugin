@@ -1,6 +1,6 @@
 metadata:
   status: current
-  generated_at: 2026-10-10T10:10:19Z
+  generated_at: 2026-10-10T10:39:39Z
   arc42_home: docs/arc42
   human_memory_path: docs/architecture-memory.adoc
 sources:
@@ -21,7 +21,9 @@ sources:
   adr:
     - docs/adr/ADR-001-isolated-analyzer.adoc
     - docs/adr/ADR-002-reliable-generation.adoc
-  contracts: []
+    - docs/adr/ADR-003-selectable-tools.adoc
+  contracts:
+    - docs/tool-contract.md
   defaults: []
 summary:
   goals:
@@ -29,7 +31,7 @@ summary:
     sources:
       - docs/arc42/01-introduction-and-goals.adoc
   constraints:
-    text: "Public DendroDocs repo, MIT, Maven Central, JDK21+, Maven3.9.11+, UTF-8 Java21 sources."
+    text: "Public DendroDocs repo, MIT, Maven Central, JDK21+, Maven3.9.11+, Java-default UTF-8 Java21 sources; selectable standalone tools own other language validation."
     sources:
       - docs/arc42/02-architecture-constraints.adoc
   context:
@@ -37,7 +39,7 @@ summary:
     sources:
       - docs/arc42/03-context-and-scope.adoc
   strategy:
-    text: "Resolve standalone analyzer, syntax preflight, detect omitted top-level types, isolate process, stage and merge output."
+    text: "Resolve selected standalone analyzer with Java default, conditional Java preflight and declaration checks, isolate process, stage and merge output."
     sources:
       - docs/arc42/04-solution-strategy.adoc
   building_blocks:
@@ -57,7 +59,7 @@ summary:
     sources:
       - docs/arc42/08-crosscutting-concepts.adoc
   decisions:
-    text: "ADR001 isolation and ADR002 reliable generation are proposed and implemented for review."
+    text: "ADR001 isolation and ADR002 reliable generation are proposed; ADR003 tool selection is draft; all implemented for review."
     sources:
       - docs/arc42/09-architectural-decisions.adoc
   quality:
@@ -85,7 +87,7 @@ defaults:
       status: explicit
     analyzer:
       value: dev.dendrodocs:tool:0.1.0
-      source: docs/adr/ADR-001-isolated-analyzer.adoc
+      source: docs/adr/ADR-003-selectable-tools.adoc
       status: explicit
   documentation:
     architecture_format:

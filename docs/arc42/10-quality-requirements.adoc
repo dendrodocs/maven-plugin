@@ -7,7 +7,7 @@
 | ID | Scenario | Acceptance criterion
 | Q-01 | Multiple main roots | All distinct types appear once; overlapping roots are not repeated.
 | Q-02 | Analyzer failure | Maven fails; existing output is preserved; temporary files are removed.
-| Q-03 | Malformed source | Parse-only preflight fails before invoking the analyzer.
+| Q-03 | Malformed Java with Java validation enabled | Parse-only preflight fails before invoking the analyzer.
 | Q-04 | Reactor dependency | Consumer field types resolve from compiled sibling classes under mvn -T 2 process-classes.
 | Q-05 | Paths with spaces | Sources, analyzer JAR, and custom output work without shell quoting.
 | Q-06 | Analyzer timeout | Process is terminated and Maven receives an actionable error.

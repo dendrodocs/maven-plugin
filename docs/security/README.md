@@ -17,8 +17,8 @@ The initial OSV scan found advisory matches in bundled Jackson core/databind,
 Commons BeanUtils, and jsoup; see `evidence/analyzer-dependency-audit.json`.
 The scan covers Maven metadata in a minimized JAR and does not establish exploit reachability.
 `scripts/Audit-Analyzer.ps1` refreshes the scan; `-FailOnFindings` blocks Central staging.
-Dependabot cannot see these embedded versions or the filtered analyzer version property automatically.
-Maintainers must rerun this audit when changing the analyzer version.
+Dependabot cannot see these embedded versions or the filtered default analyzer coordinates automatically.
+Maintainers must rerun this audit when changing the analyzer artifact. Pass -ToolArtifact and, if necessary, -ArtifactPath to assess the same alternative JAR selected in a consumer build; CI and release gating assess the embedded default tool.
 
 Before a production release, review the embedded analyzer components and current advisories,
 Windows/Linux CI, signing credentials, Central namespace ownership, and the staged bundle.

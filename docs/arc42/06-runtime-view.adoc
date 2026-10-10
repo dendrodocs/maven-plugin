@@ -4,11 +4,12 @@
 
 . Maven resolves compile dependencies and invokes generate after classes are compiled.
 . Skip explicit skips and POM modules; discover non-overlapping main source roots.
+. Validate the selected artifact coordinates and determine whether Java validation is enabled.
 . Create the output parent and a unique module-local temporary workspace.
 . Convert class directories into temporary JARs containing only class files.
-. Parse each root with javac, then resolve and launch the standalone analyzer.
+. Parse each root with javac only when Java validation is enabled, then resolve and launch the selected standalone analyzer.
 . Require successful process exit and fresh JSON from every root.
-. Parse arrays, reject unnamed, omitted, or duplicate types, and merge all entries.
+. Parse arrays, reject unnamed or duplicate types, apply Java declaration completeness checks when enabled, and merge all entries.
 . Write the staged JSON and replace the destination.
 . Remove the workspace after success or failure.
 

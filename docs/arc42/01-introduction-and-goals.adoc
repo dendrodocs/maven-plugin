@@ -4,7 +4,7 @@
 
 Generate the existing DendroDocs intermediary JSON during a Maven build.
 Use Maven main source roots and compile dependencies; write one file per module.
-Expose output, formatting, timeout, skip, and optional source-root configuration.
+Expose tool artifact, Java-validation override, output, formatting, timeout, skip, and optional source-root configuration.
 Fail the build reliably on invalid syntax or failed analysis.
 
 Rendering, uploading documentation, whole-reactor aggregation, and test-source analysis are outside the initial scope.
@@ -14,11 +14,11 @@ Rendering, uploading documentation, whole-reactor aggregation, and test-source a
 Correctness:: Only publish a complete result after every root succeeds.
 Interoperability:: Keep the analyzer's JSON schema and modifier semantics.
 Robustness:: Bound analyzer execution and clean temporary artifacts.
-Maintainability:: Keep source analysis in the existing Java tool.
+Maintainability:: Keep source analysis in the selected standalone tool; use the Java tool by default.
 
 == Stakeholders
 
-Java developers configure the goal in their POM.
+JVM developers configure the goal and optional alternative tool in their POM.
 CI maintainers need reliable build failure and repeatable builds.
 DendroDocs maintainers own compatibility and release quality.
 Downstream renderers consume the unchanged intermediary JSON format.

@@ -1,12 +1,12 @@
 # DendroDocs Maven Plugin
 
-Build and maintain the Maven adapter for the DendroDocs Java analyzer.
+Build and maintain the Maven adapter for selectable DendroDocs analyzers, defaulting to the Java tool.
 
 ## Architecture guardrails
 
 - Read `.agents/architecture-memory.yaml`, then `docs/arc42/` and linked ADRs before architecture changes. Source docs remain authoritative.
 - Explain conflicts with the architecture and propose updates to the docs, code, or both.
-- Keep analysis and schema ownership in `DendroDocs/java-tool`. Run the standalone analyzer in a child JVM.
+- Keep language analysis and schema validation in the selected tool, defaulting to `DendroDocs/java-tool`. Run the standalone analyzer in a child JVM.
 - Refresh derived architecture memory after architecture changes.
 - Apply documented defaults to generated files and check them afterward.
 - Validate behavior with `./mvnw verify` (Windows: `mvnw.cmd verify`); integration fixtures live in `src/it`.

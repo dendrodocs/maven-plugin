@@ -239,6 +239,72 @@ class GenerateMojoTest {
         assertClean();
     }
 
+    @Test void defaultsToJavaTool() throws Exception {
+        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+        assertEquals("dev.dendrodocs:tool:jar:0.1.0", mojo.selectedTool().toString());
+        assertTrue(mojo.javaValidationEnabled(mojo.selectedTool()));
+    }
+
+    @Test void acceptsAlternativeToolAndClassifier() throws Exception {
+        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+        set(mojo, "toolArtifact", "example:kotlin-tool:jar:all:1.2.3");
+        assertEquals("example:kotlin-tool:jar:all:1.2.3", mojo.selectedTool().toString());
+        assertFalse(mojo.javaValidationEnabled(mojo.selectedTool()));
+        set(mojo, "toolArtifact", "example:kotlin-tool:1.2.3");
+        assertEquals("example:kotlin-tool:jar:1.2.3", mojo.selectedTool().toString());
+    }
+
+    @Test void rejectsInvalidToolCoordinates() throws Exception {
+        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+        for (String coordinate : List.of("", " ", "group:artifact", ":tool:1", "group::1",
+                "group:tool:zip:1", "group:tool:LATEST", "group:tool:RELEASE",
+                "group:tool:[1,2)", "group:tool:1 2", "group:tool:jar::1")) {
+            set(mojo, "toolArtifact", coordinate);
+            assertThrows(IOException.class, mojo::selectedTool, coordinate);
+        }
+    }
+
+    @Test void alternativeToolOwnsLanguageValidation() throws Exception {
+        MavenProject project = project("jar");
+        Path root = source(project, "src/main/kotlin");
+        Files.writeString(root.resolve("Ignored.java"), "this is deliberately invalid Java");
+        Files.writeString(root.resolve("Example.kt"), "package sample\nclass Example");
+        GenerateMojo mojo = mojo(project, (source, output, cp) ->
+                Files.writeString(output, "[{\"FullName\":\"sample.Example\"}]"));
+        set(mojo, "toolArtifact", "example:kotlin-tool:1");
+        mojo.execute();
+        assertEquals(1, visited.size());
+        assertTrue(Files.readString(directory.resolve("target/dendrodocs.json")).contains("sample.Example"));
+        assertClean();
+    }
+
+    @Test void explicitJavaValidationAppliesToAlternativeTool() throws Exception {
+        MavenProject project = project("jar");
+        Path root = source(project, "src");
+        Files.writeString(root.resolve("Invalid.java"), "not Java");
+        GenerateMojo mojo = mojo(project, (source, output, cp) -> fail("Unexpected analysis"));
+        set(mojo, "toolArtifact", "example:java-fork:1");
+        set(mojo, "validateJava", true);
+        assertTrue(assertThrows(MojoExecutionException.class, mojo::execute).getMessage().contains("Invalid Java source"));
+        assertClean();
+    }
+
+    @Test void canDisableJavaPreflightExplicitly() throws Exception {
+        MavenProject project = project("jar");
+        Path root = source(project, "src");
+        Files.writeString(root.resolve("Invalid.java"), "not Java");
+        GenerateMojo mojo = mojo(project, (source, output, cp) -> Files.writeString(output, "[]"));
+        set(mojo, "validateJava", false);
+        mojo.execute();
+        assertEquals(1, visited.size());
+        assertClean();
+    }
+
+    @Test void differentVersionOfDefaultJavaToolRetainsPreflight() throws Exception {
+        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+        set(mojo, "toolArtifact", "dev.dendrodocs:tool:2.0.0");
+        assertTrue(mojo.javaValidationEnabled(mojo.selectedTool()));
+    }
     @FunctionalInterface interface RootAction {
         void run(Path root, Path output, List<String> classpath) throws IOException, InterruptedException;
     }

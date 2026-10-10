@@ -2,11 +2,13 @@
 
 == Known risks
 
-The analyzer may intentionally emit ? for unresolved references.
+The default Java analyzer may intentionally emit ? for unresolved references.
 The initial OSV assessment matched advisories in bundled Jackson, Commons BeanUtils, and jsoup.
 Exploit reachability in the minimized JAR has not been assessed. The release audit blocks Central staging while matches remain.
 Its parser language support differs from the JDK compiler; the adapter supports Java 21 syntax,
 but complete analyzer language coverage is not claimed.
+A contract fixture proves alternative-tool resolution and execution; actual Kotlin analysis is not implemented or verified.
+Alternative tools require compatibility and dependency assessment before adoption.
 Temporary class-directory JARs and per-root JVM startup add work for large reactors.
 A direct goal without compilation may lack reactor or generated classes.
 Atomic replacement can fall back to non-atomic replacement on some filesystems.

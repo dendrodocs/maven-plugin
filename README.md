@@ -1,14 +1,15 @@
 # DendroDocs Maven Plugin
 
-Generate DendroDocs intermediary JSON from a Java Maven project.
-Each Java module writes `target/dendrodocs.json` for downstream renderers.
+Generate DendroDocs intermediary JSON during Maven builds, using the Java tool by default.
+Each module writes `target/dendrodocs.json` for downstream renderers.
 
 This is an initial implementation under review. Version `0.1.0-SNAPSHOT` has not been published to Maven Central. Build and install it locally to try it.
 
 ## Requirements
 
 - A JDK 21 or newer and Maven 3.9.11 or newer in the Maven 3 series.
-- Java sources using Java 21 syntax or earlier, encoded as UTF-8.
+- With the default Java tool: Java sources using Java 21 syntax or earlier, encoded as UTF-8.
+- Alternative tools must run on Maven's JDK and implement the [standalone analyzer contract](docs/tool-contract.md).
 - Maven Central access on the first run; cached dependencies and the analyzer allow offline use afterward.
 
 The Maven Wrapper pins Maven 3.9.11. Local verification currently uses JDK 21; CI covers Windows and Linux.
@@ -41,6 +42,8 @@ Use `mvn dendrodocs:help -Ddetail=true -Dgoal=generate` for generated goal help.
 
 | Parameter | Default | User property |
 | --- | --- | --- |
+| `toolArtifact` | `dev.dendrodocs:tool:0.1.0` | `dendrodocs.toolArtifact` |
+| `validateJava` | `true` for `dev.dendrodocs:tool`, `false` for other tools | `dendrodocs.validateJava` |
 | `outputFile` | `${project.build.directory}/dendrodocs.json` | `dendrodocs.outputFile` |
 | `pretty` | `true` | `dendrodocs.pretty` |
 | `skip` | `false` | `dendrodocs.skip` |
@@ -68,15 +71,37 @@ Test sources are outside the initial version's scope.
 The goal is safe for `mvn -T 2 process-classes`: each module has separate output and temporary files.
 It generates one JSON file per module; it does not combine an entire reactor into a single file.
 
+## Selecting another tool
+
+Set `toolArtifact` to a standalone executable JAR's Maven coordinates. For example, this illustrates a future Kotlin tool; the artifact name is a placeholder:
+
+```xml
+<configuration>
+  <toolArtifact>your.group:kotlin-tool:1.0.0</toolArtifact>
+  <sourceDirectories>
+    <sourceDirectory>src/main/kotlin</sourceDirectory>
+  </sourceDirectories>
+</configuration>
+```
+
+You can also use `-Ddendrodocs.toolArtifact=groupId:artifactId:version`.
+A classifier is supported as `groupId:artifactId:jar:classifier:version`.
+The tool must accept the common CLI and produce schema-valid DendroDocs JSON; see the [tool contract](docs/tool-contract.md).
+
+Java syntax and omitted-declaration checks run automatically for `dev.dendrodocs:tool`.
+Other tools handle their own language validation. Set `validateJava` explicitly to override this behavior.
+The integration tests verify an alternative executable fixture; an actual Kotlin analyzer is future work.
+
 ## Failure behavior
 
-The build fails on invalid Java syntax, analyzer errors, timeouts, missing fresh output, invalid JSON, omitted top-level types, or duplicate types.
+The build fails on analyzer errors, timeouts, missing fresh output, invalid JSON, or duplicate types.
+When Java validation is enabled, invalid Java syntax and omitted top-level Java types also fail the build.
 The previous output survives a failed generation. A failed build must not publish that previous file.
 Output is replaced only after every root succeeds, using an atomic move where the filesystem supports it.
 Temporary files are removed after success and failure.
 
-The analyzer validates each root's JSON against its bundled DendroDocs schema.
-Unresolved types can still appear as `?`, an intentional analyzer fallback.
+Selected tools are responsible for validating each root's JSON against the shared DendroDocs schema.
+The default Java tool can emit `?` for unresolved types, an intentional analyzer fallback.
 A child JVM isolates bundled analyzer libraries from Maven; it is not a security sandbox.
 
 ## Development and release

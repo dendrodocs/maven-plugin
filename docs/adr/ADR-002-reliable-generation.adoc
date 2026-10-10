@@ -12,7 +12,7 @@ Build callers require explicit failure and correct reactor type resolution.
 == Decision
 
 Bind generate to process-classes and use all Maven main roots unless explicitly replaced.
-Perform a JDK parse-only syntax check before structural analysis.
+Perform a JDK parse-only syntax check before Java structural analysis; ADR-003 makes this conditional on the selected tool and configuration.
 Analyze non-overlapping roots separately with compile JARs and temporary JARs of class directories.
 Require fresh JSON for every root, compare top-level type names with syntax-preflight declarations, reject duplicate names, and publish only a complete staged merge.
 

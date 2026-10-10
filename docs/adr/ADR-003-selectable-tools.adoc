@@ -1,0 +1,57 @@
+= ADR-003 Select standalone tools with Java as the default
+
+Date:: 2026-10-10
+Status:: Draft, implemented for review
+Approved by:: Pending review
+
+== Context
+
+The Maven adapter initially resolved only the published Java tool and performed Java-specific checks on every source root.
+The user requires future selection of another tool, for example a Kotlin analyzer, while retaining Java as the default.
+The existing process boundary already keeps language analysis outside Maven; unconditional Java preflight would violate that boundary for alternative languages.
+
+== Decision
+
+*Resolve a configurable standalone tool artifact implementing the common CLI and JSON contract, default to the Java tool, and apply Java checks conditionally.*
+
+Expose toolArtifact with concrete Maven JAR coordinates and optional classifier.
+Automatically enable Java syntax and declaration-completeness checks for dev.dendrodocs:tool and disable them for other identities; validateJava provides an explicit override.
+Keep source selection, classpath adaptation, process limits, JSON merging, and staged replacement common to every tool.
+
+== Consequences
+
+* Consumers can adopt another language tool without a new Maven plugin implementation.
+* The Java default retains its existing safeguards, including when its version changes.
+* Alternative tools own their language validation and shared-schema compatibility.
+* Consumers must select source roots and lifecycle ordering appropriate to the chosen language.
+* Alternative artifact adoption requires its own security assessment.
+* Actual Kotlin analysis remains future work; the integration fixture proves the adapter extension point.
+
+== Considered options
+
+=== Configurable standalone artifact
+
+Pros:: Reuses the existing isolated process adapter and stable CLI contract.
+Cons:: Tool implementations must conform to the contract and run on Maven's JDK.
+
+=== Hard-code a tool for every language in the plugin
+
+Pros:: The adapter could expose language-specific defaults.
+Cons:: Every tool release and language addition would couple analyzer ownership to plugin releases.
+
+=== Load analyzer implementations inside Maven
+
+Pros:: Java interfaces could express the extension point.
+Cons:: Shaded analyzer dependencies and compiler libraries would enter the Maven realm, weakening ADR-001 isolation.
+
+== More information
+
+This extends the implemented Java-preflight scope described in ADR-002; existing Java-tool architecture decisions are unchanged.
+
+== References
+
+* link:../tool-contract.md[Standalone analyzer contract]
+* link:../arc42/05-building-block-view.adoc#_level_1[Selected analyzer building block]
+* link:../arc42/06-runtime-view.adoc#_main_flow[Generation flow]
+* link:ADR-001-isolated-analyzer.adoc[Process isolation]
+* link:ADR-002-reliable-generation.adoc[Reliable generation]
