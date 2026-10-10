@@ -1,6 +1,7 @@
 # Testing
 
 Run `./mvnw verify` or `mvnw.cmd verify`.
+The wrapper uses Maven 3.10.0; CI also runs the complete suite on the minimum supported Maven 3.9.11, on Windows and Linux with JDK 21.
 
 Unit tests cover source selection, duplicate detection, malformed input, fresh-output checks,
 previous-output preservation, compact JSON, skip behavior, temporary classpath JARs,

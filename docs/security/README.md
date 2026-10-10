@@ -4,6 +4,8 @@ Maven Central is the source for Maven artifacts, matching the existing DendroDoc
 Official GitHub Actions are pinned to verified commit SHAs. Maven Wrapper downloads are checksum pinned.
 Dependencies execute build code and are versioned explicitly; Dependabot monitors Maven and action updates.
 
+The plugin compiles against Maven 3.10.0 APIs and uses Maven's own APIs and injection at runtime, with a tested minimum of Maven 3.9.11. Maven 3.10 changes Resolver and logging dependencies; compatibility builds exercise both generations. The wrapper distribution remains checksum pinned from approved Maven Central. Staying on 3.9.11 was the alternative; adopting the released update adds upstream resolver and credential hardening while baseline CI guards consumer compatibility. See [Apache's release notes](https://maven.apache.org/docs/3.10.0/release-notes.html).
+
 The plugin uses Maven APIs and injection as provided dependencies, Jackson for JSON merging,
 JUnit for tests, and Apache Maven build plugins. Alternatives were hand-written JSON manipulation
 and a custom plugin harness; these increase maintenance burden without improving the contract.

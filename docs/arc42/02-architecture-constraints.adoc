@@ -9,6 +9,7 @@ Do not copy or fork the Java analyzer implementation.
 == Technical constraints
 
 Build with JDK 21+ and Maven 3.9.11+ in the Maven 3 series.
+Use wrapper-pinned Maven 3.10.0 and compile against the provided Maven 3.10.0 APIs; retain Maven 3.9.11 as the supported consumer minimum, verified by integration builds.
 Use released dev.dendrodocs:tool:0.1.0 as the default analyzer.
 Allow a concrete standalone JAR artifact, including an optional classifier, through toolArtifact.
 Every selected tool must implement link:../tool-contract.md[the common CLI and JSON contract] and run on the JDK used by Maven.

@@ -12,7 +12,8 @@ This is an initial implementation under review. Version `0.1.0-SNAPSHOT` has not
 - Alternative tools must run on Maven's JDK and implement the [standalone analyzer contract](docs/tool-contract.md).
 - Maven Central access on the first run; cached dependencies and the analyzer allow offline use afterward.
 
-The Maven Wrapper pins Maven 3.9.11. Local verification currently uses JDK 21; CI covers Windows and Linux.
+The Maven Wrapper pins Maven 3.10.0. The supported minimum remains Maven 3.9.11.
+CI verifies both versions on Windows and Linux with JDK 21.
 
 ## Usage
 

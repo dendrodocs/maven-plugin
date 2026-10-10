@@ -34,7 +34,7 @@ Source: link:arc42/06-runtime-view.adoc[arc42].
 
 == deployment
 
-Plugin in Maven, analyzer in child JVM; CI on Windows/Linux; manual Central staging.
+Plugin in Maven, analyzer in child JVM; CI on Windows/Linux with Maven 3.9.11 and 3.10.0; manual Central staging.
 Source: link:arc42/07-deployment-view.adoc[arc42].
 
 == cross cutting
@@ -64,7 +64,7 @@ Source: link:arc42/12-glossary.adoc[arc42].
 
 == Defaults and decisions
 
-Use JDK 21+, Maven 3.9.11+, and dev.dendrodocs:tool:0.1.0 by default. Java validation uses UTF-8 and Java 21 syntax; alternative tools own language validation unless explicitly overridden.
+Use JDK 21+, Maven 3.9.11+ for consumers, Maven Wrapper and provided APIs 3.10.0, and dev.dendrodocs:tool:0.1.0 by default. Java validation uses UTF-8 and Java 21 syntax; alternative tools own language validation unless explicitly overridden.
 These implemented defaults are documented in arc42; isolation and staged output ADRs remain proposed for maintainer review.
 Use Markdown guides, AsciiDoc architecture, and PlantUML.
 

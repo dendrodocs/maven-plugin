@@ -1,6 +1,6 @@
 metadata:
   status: current
-  generated_at: 2026-10-10T10:39:39Z
+  generated_at: 2026-10-10T11:05:59Z
   arc42_home: docs/arc42
   human_memory_path: docs/architecture-memory.adoc
 sources:
@@ -51,7 +51,7 @@ summary:
     sources:
       - docs/arc42/06-runtime-view.adoc
   deployment:
-    text: "Plugin in Maven, analyzer in child JVM; CI on Windows/Linux; manual Central staging."
+    text: "Plugin in Maven, analyzer in child JVM; CI on Windows/Linux with Maven 3.9.11 and 3.10.0; manual Central staging."
     sources:
       - docs/arc42/07-deployment-view.adoc
   cross_cutting:
@@ -83,6 +83,10 @@ defaults:
   maven:
     minimum:
       value: 3.9.11
+      source: docs/arc42/02-architecture-constraints.adoc
+      status: explicit
+    build:
+      value: 3.10.0
       source: docs/arc42/02-architecture-constraints.adoc
       status: explicit
     analyzer:

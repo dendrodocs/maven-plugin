@@ -11,11 +11,12 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
-    name: Verify (${{ matrix.os }}, JDK 21)
+    name: Verify (${{ matrix.os }}, Maven ${{ matrix.maven }}, JDK 21)
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, windows-2025]
+        maven: ['3.9.11', '3.10.0']
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -26,9 +27,20 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Select compatibility baseline
+        if: matrix.maven == '3.9.11'
+        shell: pwsh
+        run: |
+          $path = Join-Path $PWD '.mvn/wrapper/maven-wrapper.properties'
+          $properties = Get-Content -LiteralPath $path -Raw
+          $properties = $properties -replace 'distributionUrl=.*', 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip'
+          $properties = $properties -replace 'distributionSha256Sum=.*', 'distributionSha256Sum=0d7125e8c91097b36edb990ea5934e6c68b4440eef4ea96510a0f6815e7eeadb'
+          [IO.File]::WriteAllText($path, $properties, [Text.UTF8Encoding]::new($false))
       - name: Verify
         shell: bash
-        run: ./mvnw --batch-mode --no-transfer-progress verify
+        run: |
+          ./mvnw --version
+          ./mvnw --batch-mode --no-transfer-progress verify
       - name: Report embedded analyzer advisories
         shell: pwsh
         run: ./scripts/Audit-Analyzer.ps1
@@ -36,7 +48,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: verification-${{ matrix.os }}
+          name: verification-${{ matrix.os }}-maven-${{ matrix.maven }}
           if-no-files-found: warn
           retention-days: 14
           path: |

@@ -12,6 +12,7 @@
 | Q-05 | Paths with spaces | Sources, analyzer JAR, and custom output work without shell quoting.
 | Q-06 | Analyzer timeout | Process is terminated and Maven receives an actionable error.
 | Q-07 | Offline reuse | A previously warmed Maven cache can run generation offline.
+| Q-08 | Maven API update | The full suite passes on both the 3.9.11 minimum and the 3.10.0 wrapper version, on Windows and Linux.
 |===
 
 Evidence belongs in link:../../evidence/README.md[evidence]; CI reports platform coverage.
