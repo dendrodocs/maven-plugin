@@ -31,3 +31,5 @@ A process boundary isolates Java libraries; it does not isolate filesystem or ne
 CI accepts fork pull requests with read-only permissions and no release credentials.
 Central staging is a manual workflow on the default branch, guarded by a `maven-central` environment.
 Secrets are supplied only to signing and staging steps. Automatic publication is disabled.
+
+CodeQL is pinned to the official GitHub action commit and its linked tool bundle. A separate compiled-adapter analysis job receives only contents-read and security-events-write; fork PRs retain SARIF artifacts with code-scanning upload disabled. Public-repository scanning requires no third-party account or publish secrets. Dependency caches are read-only on PRs and excluded from privileged release staging. See [CI trust boundaries](../ci.md); successful static analysis is not a clean bill of health for the external analyzer.

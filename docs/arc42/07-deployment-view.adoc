@@ -11,6 +11,10 @@ The same JDK used by Maven runs the child process.
 Windows and Linux CI build with JDK 21 using Maven 3.10.0 and the compatibility baseline 3.9.11.
 The checked-in wrapper pins 3.10.0; baseline jobs select the older distribution and its pinned checksum.
 Spotless runs during validate; JaCoCo attaches to the unit-test JVM and produces coverage reports during verify, uploaded with CI evidence.
+CI restores manifest-keyed dependency caches; PRs cannot save caches. Baseline selection precedes key calculation.
+Jobs summarize test, coverage, and audit reports and retain verification evidence and a canonical unsigned build for 14 days.
+A separate weekly/push/PR CodeQL workflow analyzes the compiled main adapter, with a pinned action and linked bundle. Fork PRs retain SARIF without code-scanning upload.
+Release staging uses a fresh repository without CI caches.
 A manual main-branch workflow stages signed releases through Sonatype Central.
 Central publication remains a separate approval.
 Known unknowns: credentials, environment reviewers, branch protections, and first publication are not yet verified.

@@ -15,6 +15,7 @@
 | Q-08 | Maven API update | The full suite passes on both the 3.9.11 minimum and the 3.10.0 wrapper version, on Windows and Linux.
 | Q-09 | Java or POM formatting drifts | Spotless fails validate; spotless:apply restores the canonical format while leaving malformed fixtures intact.
 | Q-10 | Unit-test coverage evidence | JaCoCo HTML/XML reports are generated during verify and uploaded from each CI job; generated help code is excluded.
+| Q-11 | CI reporting and scanning | Job summaries label missing reports unavailable; compiled-adapter CodeQL runs on changes and weekly; SARIF is archived, with uploads disabled for fork PRs.
 |===
 
 Evidence belongs in link:../../evidence/README.md[evidence]; CI reports platform coverage.

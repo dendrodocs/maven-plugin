@@ -55,6 +55,10 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      - name: Summarize release verification
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: ./scripts/Write-CiSummary.ps1
       - name: Upload release evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -63,6 +67,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
           path: |
+            target/site/jacoco/
             target/surefire-reports/*.xml
             target/invoker-reports/*.xml
             target/security/*.json

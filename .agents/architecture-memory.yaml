@@ -1,6 +1,6 @@
 metadata:
   status: current
-  generated_at: 2026-10-10T11:11:04Z
+  generated_at: 2026-10-10T11:43:24Z
   arc42_home: docs/arc42
   human_memory_path: docs/architecture-memory.adoc
 sources:
@@ -51,7 +51,7 @@ summary:
     sources:
       - docs/arc42/06-runtime-view.adoc
   deployment:
-    text: "Plugin in Maven, analyzer in child JVM; CI on Windows/Linux with Maven 3.9.11 and 3.10.0; manual Central staging."
+    text: "Plugin in Maven, analyzer in child JVM; Windows/Linux Maven 3.9.11 and 3.10.0 CI with PR-read-only caches and summaries; compiled-adapter CodeQL with fork SARIF; uncached manual Central staging."
     sources:
       - docs/arc42/07-deployment-view.adoc
   cross_cutting:
@@ -63,7 +63,7 @@ summary:
     sources:
       - docs/arc42/09-architectural-decisions.adoc
   quality:
-    text: "Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse; Spotless validates formatting and JaCoCo reports unit-test coverage."
+    text: "Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse; Spotless formatting, JaCoCo unit-test reports, CI evidence summaries, and compiled-adapter CodeQL."
     sources:
       - docs/arc42/10-quality-requirements.adoc
   risks:

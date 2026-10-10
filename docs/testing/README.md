@@ -19,3 +19,5 @@ An alternative executable fixture tests XML and command-line artifact selection,
 Tests prove adapter behavior against the pinned analyzer. They do not prove complete Java language
 coverage, complete type resolution, renderer correctness, registry credentials, or signing.
 Local evidence is recorded in [evidence](../../evidence/README.md); remote CI results provide platform evidence.
+
+[CI](../ci.md) reports test and coverage counts in job summaries, archives detailed evidence, and runs compiled-adapter CodeQL analysis. CodeQL and coverage reports have distinct scopes; neither assesses the standalone analyzer's embedded libraries.

@@ -34,7 +34,7 @@ Source: link:arc42/06-runtime-view.adoc[arc42].
 
 == deployment
 
-Plugin in Maven, analyzer in child JVM; CI on Windows/Linux with Maven 3.9.11 and 3.10.0; manual Central staging.
+Plugin in Maven, analyzer in child JVM; Windows/Linux Maven 3.9.11 and 3.10.0 CI with PR-read-only caches and summaries; compiled-adapter CodeQL with fork SARIF; uncached manual Central staging.
 Source: link:arc42/07-deployment-view.adoc[arc42].
 
 == cross cutting
@@ -49,7 +49,7 @@ Source: link:arc42/09-architectural-decisions.adoc[arc42].
 
 == quality
 
-Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse; Spotless validates formatting and JaCoCo reports unit-test coverage.
+Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse; Spotless formatting, JaCoCo unit-test reports, CI evidence summaries, and compiled-adapter CodeQL.
 Source: link:arc42/10-quality-requirements.adoc[arc42].
 
 == risks
