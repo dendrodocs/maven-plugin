@@ -1,0 +1,30 @@
+= ADR-001 Resolve and isolate the published analyzer
+
+Status:: Proposed, implemented for initial review
+Date:: 2026-10-10
+
+== Context
+
+The student wrapper used an in-process analyzer dependency.
+The released DendroDocs tool is a shaded standalone JAR with bundled libraries.
+Putting it on Maven's plugin classpath exposes duplicate library classes and makes dependency upgrades ambiguous.
+
+== Decision
+
+Resolve the pinned analyzer artifact through Maven Resolver, without its transitive dependencies.
+Run it with java -jar in a separate JVM and communicate through temporary JSON files.
+Do not declare the analyzer as a plugin runtime dependency.
+
+== Consequences
+
+The analyzer retains ownership of structural analysis and schema validation.
+Maven mirrors, authentication, repository policies, and offline mode remain in Maven's session.
+JVM startup and class-directory packaging have costs; large-project timings remain unmeasured.
+A process boundary does not provide filesystem or network sandboxing.
+Embedded analyzer libraries require a separate security review.
+
+== Alternatives
+
+An in-process shaded dependency risks class conflicts.
+Forking or copying the analyzer duplicates schema and analysis responsibilities.
+A future supported thin analyzer library could replace this boundary through a new ADR.

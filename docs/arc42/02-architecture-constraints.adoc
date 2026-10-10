@@ -1,0 +1,23 @@
+= Architecture constraints
+
+== Organizational constraints
+
+Create a separate public repository in the DendroDocs organization.
+Use MIT licensing and Maven Central as the artifact registry.
+Do not copy or fork the Java analyzer implementation.
+
+== Technical constraints
+
+Build with JDK 21+ and Maven 3.9.11+ in the Maven 3 series.
+Support UTF-8 Java source syntax through Java 21.
+Pin the analyzer to released dev.dendrodocs:tool:0.1.0.
+Run its standalone shaded JAR in a child JVM; resolve it through Maven's plugin repositories.
+Maven supplies its own APIs and repository session.
+The adapter must not introduce changes to the shared intermediary JSON schema.
+
+== Conventions
+
+Usage guides use Markdown, architecture uses AsciiDoc, and diagrams use PlantUML.
+Java packages live under dev.dendrodocs.maven.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

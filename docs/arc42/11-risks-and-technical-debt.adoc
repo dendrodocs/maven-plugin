@@ -1,0 +1,20 @@
+= Risks and technical debt
+
+== Known risks
+
+The analyzer may intentionally emit ? for unresolved references.
+The initial OSV assessment matched advisories in bundled Jackson, Commons BeanUtils, and jsoup.
+Exploit reachability in the minimized JAR has not been assessed. The release audit blocks Central staging while matches remain.
+Its parser language support differs from the JDK compiler; the adapter supports Java 21 syntax,
+but complete analyzer language coverage is not claimed.
+Temporary class-directory JARs and per-root JVM startup add work for large reactors.
+A direct goal without compilation may lack reactor or generated classes.
+Atomic replacement can fall back to non-atomic replacement on some filesystems.
+
+== Deferred work
+
+Maintainer approval of the proposed ADRs, signing and Central credential verification,
+branch protections, release-environment reviewers, and measured large-project performance.
+Test-source analysis and whole-reactor aggregation require separate requirements and decisions.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

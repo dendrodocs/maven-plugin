@@ -1,0 +1,26 @@
+= Introduction and goals
+
+== Requirements overview
+
+Generate the existing DendroDocs intermediary JSON during a Maven build.
+Use Maven main source roots and compile dependencies; write one file per module.
+Expose output, formatting, timeout, skip, and optional source-root configuration.
+Fail the build reliably on invalid syntax or failed analysis.
+
+Rendering, uploading documentation, whole-reactor aggregation, and test-source analysis are outside the initial scope.
+
+== Quality goals
+
+Correctness:: Only publish a complete result after every root succeeds.
+Interoperability:: Keep the analyzer's JSON schema and modifier semantics.
+Robustness:: Bound analyzer execution and clean temporary artifacts.
+Maintainability:: Keep source analysis in the existing Java tool.
+
+== Stakeholders
+
+Java developers configure the goal in their POM.
+CI maintainers need reliable build failure and repeatable builds.
+DendroDocs maintainers own compatibility and release quality.
+Downstream renderers consume the unchanged intermediary JSON format.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

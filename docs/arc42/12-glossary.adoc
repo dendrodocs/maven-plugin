@@ -1,0 +1,14 @@
+= Glossary
+
+== Definitions
+
+Mojo:: One executable Maven plugin goal.
+Reactor:: The ordered set of modules in a Maven build.
+Intermediary JSON:: DendroDocs structural descriptions shared with downstream renderers.
+Source root:: A directory registered as a main Java source tree for one module.
+Standalone analyzer:: The published shaded dev.dendrodocs:tool JAR.
+Schema:: The JSON contract embedded in the analyzer.
+Class directory:: Maven's compiled output or an un-packaged reactor dependency.
+Fresh output:: A new per-root file in the current invocation's unique workspace.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

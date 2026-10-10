@@ -1,0 +1,23 @@
+= Cross-cutting concepts
+
+== Classpath and process isolation
+
+Compile JARs pass directly to the analyzer.
+Compiled directories become temporary JARs with normalized entry names and no resources.
+No analyzer dependency is declared in the plugin's dependency graph; only Maven Resolver downloads it.
+The child JVM is a classloader boundary, not a security sandbox.
+
+== Filesystem and parallel builds
+
+Configuration paths resolve against the current module.
+Each execution creates a unique workspace under the output parent.
+Root canonicalization prevents duplicate or nested-root traversal.
+Per-module output supports Maven parallel reactors.
+
+== Schema and diagnostic boundaries
+
+The analyzer owns schema validation. Fresh output detects its silent validation failure.
+The plugin detects malformed syntax, malformed JSON, and duplicate names without altering schema conventions.
+Diagnostics are capped to 4096 characters per failed analyzer process.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

@@ -1,0 +1,27 @@
+= DendroDocs Maven Plugin
+:toc:
+:sectnums:
+
+A Maven adapter that generates DendroDocs intermediary JSON through the published Java analyzer.
+
+Owner:: DendroDocs
+Last reviewed:: Pending maintainer review
+
+== Documentation overview
+
+All chapters describe the initial implementation and are drafts for review.
+
+include::01-introduction-and-goals.adoc[leveloffset=+1]
+include::02-architecture-constraints.adoc[leveloffset=+1]
+include::03-context-and-scope.adoc[leveloffset=+1]
+include::04-solution-strategy.adoc[leveloffset=+1]
+include::05-building-block-view.adoc[leveloffset=+1]
+include::06-runtime-view.adoc[leveloffset=+1]
+include::07-deployment-view.adoc[leveloffset=+1]
+include::08-crosscutting-concepts.adoc[leveloffset=+1]
+include::09-architectural-decisions.adoc[leveloffset=+1]
+include::10-quality-requirements.adoc[leveloffset=+1]
+include::11-risks-and-technical-debt.adoc[leveloffset=+1]
+include::12-glossary.adoc[leveloffset=+1]
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

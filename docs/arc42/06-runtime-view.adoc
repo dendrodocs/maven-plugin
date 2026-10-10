@@ -1,0 +1,23 @@
+= Runtime view
+
+== Main flow
+
+. Maven resolves compile dependencies and invokes generate after classes are compiled.
+. Skip explicit skips and POM modules; discover non-overlapping main source roots.
+. Create the output parent and a unique module-local temporary workspace.
+. Convert class directories into temporary JARs containing only class files.
+. Parse each root with javac, then resolve and launch the standalone analyzer.
+. Require successful process exit and fresh JSON from every root.
+. Parse arrays, reject unnamed, omitted, or duplicate types, and merge all entries.
+. Write the staged JSON and replace the destination.
+. Remove the workspace after success or failure.
+
+== Error paths
+
+Invalid configuration, syntax errors, interrupted processes, timeout, non-zero exit,
+missing output, invalid JSON, and duplicate types fail Maven.
+Interruption is restored on the build thread.
+An unsupported atomic move falls back to replacement after staging.
+The previous destination survives analysis failures; callers must respect failed builds.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

@@ -1,0 +1,15 @@
+= Architectural decisions
+
+== Decision index
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Decision | Status
+| link:../adr/ADR-001-isolated-analyzer.adoc[ADR-001] | Resolve and run the published analyzer in an isolated child JVM | Proposed, implemented
+| link:../adr/ADR-002-reliable-generation.adoc[ADR-002] | Syntax preflight and staged per-module output at process-classes | Proposed, implemented
+|===
+
+These decisions document the initial implementation for maintainer review.
+No existing Java-tool ADR is superseded.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

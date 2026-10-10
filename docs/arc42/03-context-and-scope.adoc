@@ -1,0 +1,18 @@
+= Context and scope
+
+== Business context
+
+Maven build → DendroDocs plugin → Java analyzer → module JSON → downstream renderer.
+The plugin is the build adapter; the analyzer owns structural analysis and schema validation.
+
+== Technical context
+
+Maven supplies the module, source roots, compile classpath, plugin repositories, and repository session.
+The plugin resolves the standalone tool from Maven Central or a configured mirror.
+The child process receives source, output, and JAR classpath arguments without a shell.
+Temporary JARs adapt compiled class directories to the analyzer's JAR-only classpath.
+Output defaults to target/dendrodocs.json.
+
+PlantUML context source: link:images/03/business-context.puml[business context].
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

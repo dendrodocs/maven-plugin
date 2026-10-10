@@ -1,0 +1,32 @@
+= ADR-002 Reliable generation at process-classes
+
+Status:: Proposed, implemented for initial review
+Date:: 2026-10-10
+
+== Context
+
+The student goal bound at compile and selected one source directory.
+The released analyzer can omit malformed source input and return empty JSON, and schema failures can return no output with exit code zero.
+Build callers require explicit failure and correct reactor type resolution.
+
+== Decision
+
+Bind generate to process-classes and use all Maven main roots unless explicitly replaced.
+Perform a JDK parse-only syntax check before structural analysis.
+Analyze non-overlapping roots separately with compile JARs and temporary JARs of class directories.
+Require fresh JSON for every root, compare top-level type names with syntax-preflight declarations, reject duplicate names, and publish only a complete staged merge.
+
+== Consequences
+
+Malformed input fails reliably without altering analyzer implementation or schema conventions.
+The previous result survives failures; publishing must respect the failed Maven build.
+Compiled sibling classes support reactor references before package.
+No whole-reactor aggregation or test-source analysis is implied.
+Java source syntax is limited to Java 21 or earlier, with UTF-8 encoding.
+A duplicate type is a build error rather than an arbitrary overwrite.
+
+== Alternatives
+
+Scanning the module base directory can accidentally include tests or unrelated source trees.
+Trusting only exit status or an existing destination permits false success.
+Binding before compilation loses reliable compiled dependency information.

@@ -1,0 +1,20 @@
+= Quality requirements
+
+== Quality scenarios
+
+[cols="1,2,3",options="header"]
+|===
+| ID | Scenario | Acceptance criterion
+| Q-01 | Multiple main roots | All distinct types appear once; overlapping roots are not repeated.
+| Q-02 | Analyzer failure | Maven fails; existing output is preserved; temporary files are removed.
+| Q-03 | Malformed source | Parse-only preflight fails before invoking the analyzer.
+| Q-04 | Reactor dependency | Consumer field types resolve from compiled sibling classes under mvn -T 2 process-classes.
+| Q-05 | Paths with spaces | Sources, analyzer JAR, and custom output work without shell quoting.
+| Q-06 | Analyzer timeout | Process is terminated and Maven receives an actionable error.
+| Q-07 | Offline reuse | A previously warmed Maven cache can run generation offline.
+|===
+
+Evidence belongs in link:../../evidence/README.md[evidence]; CI reports platform coverage.
+Known unknowns: large-project performance targets and the supported renderer matrix are not yet defined.
+
+NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.
