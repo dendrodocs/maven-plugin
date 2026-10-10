@@ -9,6 +9,7 @@ Build and maintain the Maven adapter for selectable DendroDocs analyzers, defaul
 - Keep language analysis and schema validation in the selected tool, defaulting to `DendroDocs/java-tool`. Run the standalone analyzer in a child JVM.
 - Refresh derived architecture memory after architecture changes.
 - Apply documented defaults to generated files and check them afterward.
+- Run Spotless formatting checks through the Maven build; use `./mvnw spotless:apply` after Java or POM edits. Keep deliberately invalid source fixtures intact.
 - Validate behavior with `./mvnw verify` (Windows: `mvnw.cmd verify`); integration fixtures live in `src/it`.
 
 ## Documentation

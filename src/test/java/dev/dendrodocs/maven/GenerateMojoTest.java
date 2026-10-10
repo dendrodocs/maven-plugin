@@ -18,294 +18,372 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class GenerateMojoTest {
-    @TempDir Path directory;
+  @TempDir Path directory;
 
-    private final List<Path> visited = new ArrayList<>();
-    private final List<String> classpathEntries = new ArrayList<>();
+  private final List<Path> visited = new ArrayList<>();
+  private final List<String> classpathEntries = new ArrayList<>();
 
-    private MavenProject project(String packaging) {
-        Model model = new Model();
-        model.setArtifactId("sample");
-        model.setPackaging(packaging);
-        Build build = new Build();
-        build.setDirectory(directory.resolve("target").toString());
-        build.setOutputDirectory(directory.resolve("target/classes").toString());
-        model.setBuild(build);
-        MavenProject project = new MavenProject(model);
-        project.setFile(directory.resolve("pom.xml").toFile());
-        return project;
-    }
+  private MavenProject project(String packaging) {
+    Model model = new Model();
+    model.setArtifactId("sample");
+    model.setPackaging(packaging);
+    Build build = new Build();
+    build.setDirectory(directory.resolve("target").toString());
+    build.setOutputDirectory(directory.resolve("target/classes").toString());
+    model.setBuild(build);
+    MavenProject project = new MavenProject(model);
+    project.setFile(directory.resolve("pom.xml").toFile());
+    return project;
+  }
 
-    private GenerateMojo mojo(MavenProject project, RootAction action) throws Exception {
-        GenerateMojo mojo = new GenerateMojo() {
-            @Override void analyzeRoot(Path root, Path output, List<String> classpath)
-                    throws IOException, InterruptedException {
-                visited.add(root);
-                classpathEntries.addAll(classpath);
-                action.run(root, output, classpath);
-            }
+  private GenerateMojo mojo(MavenProject project, RootAction action) throws Exception {
+    GenerateMojo mojo =
+        new GenerateMojo() {
+          @Override
+          void analyzeRoot(Path root, Path output, List<String> classpath)
+              throws IOException, InterruptedException {
+            visited.add(root);
+            classpathEntries.addAll(classpath);
+            action.run(root, output, classpath);
+          }
         };
-        set(mojo, "project", project);
-        set(mojo, "outputFile", directory.resolve("target/dendrodocs.json").toFile());
-        set(mojo, "pretty", true);
-        set(mojo, "timeoutSeconds", 120);
-        return mojo;
-    }
+    set(mojo, "project", project);
+    set(mojo, "outputFile", directory.resolve("target/dendrodocs.json").toFile());
+    set(mojo, "pretty", true);
+    set(mojo, "timeoutSeconds", 120);
+    return mojo;
+  }
 
-    private Path source(MavenProject project, String name) throws IOException {
-        Path root = Files.createDirectories(directory.resolve(name));
-        project.addCompileSourceRoot(root.toString());
-        return root.toRealPath();
-    }
+  private Path source(MavenProject project, String name) throws IOException {
+    Path root = Files.createDirectories(directory.resolve(name));
+    project.addCompileSourceRoot(root.toString());
+    return root.toRealPath();
+  }
 
-    private static void set(GenerateMojo mojo, String name, Object value) throws Exception {
-        Field field = GenerateMojo.class.getDeclaredField(name);
-        field.setAccessible(true);
-        field.set(mojo, value);
-    }
+  private static void set(GenerateMojo mojo, String name, Object value) throws Exception {
+    Field field = GenerateMojo.class.getDeclaredField(name);
+    field.setAccessible(true);
+    field.set(mojo, value);
+  }
 
-    private void assertClean() throws IOException {
-        try (var files = Files.list(directory.resolve("target"))) {
-            assertTrue(files.noneMatch(path -> path.getFileName().toString().startsWith(".dendrodocs-")));
-        }
+  private void assertClean() throws IOException {
+    try (var files = Files.list(directory.resolve("target"))) {
+      assertTrue(files.noneMatch(path -> path.getFileName().toString().startsWith(".dendrodocs-")));
     }
+  }
 
-    @Test void mergesSourceRootsAndCreatesOutputParents() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "b");
-        source(project, "a");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output,
-                "[{\"FullName\":\"sample." + root.getFileName() + "\"}]"));
-        mojo.execute();
-        String result = Files.readString(directory.resolve("target/dendrodocs.json"));
-        assertTrue(result.indexOf("sample.a") < result.indexOf("sample.b"));
-        assertEquals(2, visited.size());
-        assertClean();
-    }
+  @Test
+  void mergesSourceRootsAndCreatesOutputParents() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "b");
+    source(project, "a");
+    GenerateMojo mojo =
+        mojo(
+            project,
+            (root, output, cp) ->
+                Files.writeString(
+                    output, "[{\"FullName\":\"sample." + root.getFileName() + "\"}]"));
+    mojo.execute();
+    String result = Files.readString(directory.resolve("target/dendrodocs.json"));
+    assertTrue(result.indexOf("sample.a") < result.indexOf("sample.b"));
+    assertEquals(2, visited.size());
+    assertClean();
+  }
 
-    @Test void removesRepeatedAndNestedSourceRoots() throws Exception {
-        MavenProject project = project("jar");
-        Path parent = source(project, "src");
-        project.addCompileSourceRoot(parent.toString());
-        source(project, "src/nested");
-        mojo(project, (root, output, cp) -> Files.writeString(output, "[]")).execute();
-        assertEquals(List.of(parent), visited);
-    }
+  @Test
+  void removesRepeatedAndNestedSourceRoots() throws Exception {
+    MavenProject project = project("jar");
+    Path parent = source(project, "src");
+    project.addCompileSourceRoot(parent.toString());
+    source(project, "src/nested");
+    mojo(project, (root, output, cp) -> Files.writeString(output, "[]")).execute();
+    assertEquals(List.of(parent), visited);
+  }
 
-    @Test void rejectsMissingFreshOutputAndPreservesPreviousResult() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        Path previous = directory.resolve("target/dendrodocs.json");
-        Files.createDirectories(previous.getParent());
-        Files.writeString(previous, "previous result");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> {});
-        assertThrows(MojoExecutionException.class, mojo::execute);
-        assertEquals("previous result", Files.readString(previous));
-        assertClean();
-    }
+  @Test
+  void rejectsMissingFreshOutputAndPreservesPreviousResult() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    Path previous = directory.resolve("target/dendrodocs.json");
+    Files.createDirectories(previous.getParent());
+    Files.writeString(previous, "previous result");
+    GenerateMojo mojo = mojo(project, (root, output, cp) -> {});
+    assertThrows(MojoExecutionException.class, mojo::execute);
+    assertEquals("previous result", Files.readString(previous));
+    assertClean();
+  }
 
-    @Test void rejectsInvalidJson() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "not JSON"));
-        assertThrows(MojoExecutionException.class, mojo::execute);
-        assertFalse(Files.exists(directory.resolve("target/dendrodocs.json")));
-        assertClean();
-    }
+  @Test
+  void rejectsInvalidJson() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "not JSON"));
+    assertThrows(MojoExecutionException.class, mojo::execute);
+    assertFalse(Files.exists(directory.resolve("target/dendrodocs.json")));
+    assertClean();
+  }
 
-    @Test void rejectsTrailingJsonTokens() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "[] []"));
-        assertThrows(MojoExecutionException.class, mojo::execute);
-    }
+  @Test
+  void rejectsTrailingJsonTokens() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "[] []"));
+    assertThrows(MojoExecutionException.class, mojo::execute);
+  }
 
-    @Test void rejectsNonArrayOutput() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "{}"));
-        assertThrows(MojoExecutionException.class, mojo::execute);
-    }
+  @Test
+  void rejectsNonArrayOutput() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "{}"));
+    assertThrows(MojoExecutionException.class, mojo::execute);
+  }
 
-    @Test void rejectsDuplicateTypes() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "one");
-        source(project, "two");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "[{\"FullName\":\"sample.Duplicate\"}]"));
-        assertTrue(assertThrows(MojoExecutionException.class, mojo::execute).getMessage().contains("Duplicate type"));
-    }
+  @Test
+  void rejectsDuplicateTypes() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "one");
+    source(project, "two");
+    GenerateMojo mojo =
+        mojo(
+            project,
+            (root, output, cp) ->
+                Files.writeString(output, "[{\"FullName\":\"sample.Duplicate\"}]"));
+    assertTrue(
+        assertThrows(MojoExecutionException.class, mojo::execute)
+            .getMessage()
+            .contains("Duplicate type"));
+  }
 
-    @Test void rejectsTypesWithoutNames() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "[{}]"));
-        assertThrows(MojoExecutionException.class, mojo::execute);
-    }
+  @Test
+  void rejectsTypesWithoutNames() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "[{}]"));
+    assertThrows(MojoExecutionException.class, mojo::execute);
+  }
 
-    @Test void supportsRelativeSourceAndOutputPathsAndCompactJson() throws Exception {
-        MavenProject project = project("jar");
-        Files.createDirectories(directory.resolve("source with spaces"));
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> Files.writeString(output, "[{\"FullName\":\"sample.Type\"}]"));
-        set(mojo, "sourceDirectories", List.of(new File("source with spaces")));
-        set(mojo, "outputFile", new File("custom output/result.json"));
-        set(mojo, "pretty", false);
-        mojo.execute();
-        assertEquals("[{\"FullName\":\"sample.Type\"}]", Files.readString(directory.resolve("custom output/result.json")));
-    }
+  @Test
+  void supportsRelativeSourceAndOutputPathsAndCompactJson() throws Exception {
+    MavenProject project = project("jar");
+    Files.createDirectories(directory.resolve("source with spaces"));
+    GenerateMojo mojo =
+        mojo(
+            project,
+            (root, output, cp) -> Files.writeString(output, "[{\"FullName\":\"sample.Type\"}]"));
+    set(mojo, "sourceDirectories", List.of(new File("source with spaces")));
+    set(mojo, "outputFile", new File("custom output/result.json"));
+    set(mojo, "pretty", false);
+    mojo.execute();
+    assertEquals(
+        "[{\"FullName\":\"sample.Type\"}]",
+        Files.readString(directory.resolve("custom output/result.json")));
+  }
 
-    @Test void failsForMissingExplicitSourceDirectory() throws Exception {
-        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> fail("Unexpected analysis"));
-        set(mojo, "sourceDirectories", List.of(new File("missing")));
-        assertThrows(MojoExecutionException.class, mojo::execute);
-    }
+  @Test
+  void failsForMissingExplicitSourceDirectory() throws Exception {
+    GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> fail("Unexpected analysis"));
+    set(mojo, "sourceDirectories", List.of(new File("missing")));
+    assertThrows(MojoExecutionException.class, mojo::execute);
+  }
 
-    @Test void skipsMissingDefaultSourceDirectory() throws Exception {
-        MavenProject project = project("jar");
-        project.addCompileSourceRoot(directory.resolve("missing").toString());
-        mojo(project, (root, output, cp) -> fail("Unexpected analysis")).execute();
-        assertFalse(Files.exists(directory.resolve("target")));
-    }
+  @Test
+  void skipsMissingDefaultSourceDirectory() throws Exception {
+    MavenProject project = project("jar");
+    project.addCompileSourceRoot(directory.resolve("missing").toString());
+    mojo(project, (root, output, cp) -> fail("Unexpected analysis")).execute();
+    assertFalse(Files.exists(directory.resolve("target")));
+  }
 
-    @Test void skipsPomModules() throws Exception {
-        MavenProject project = project("pom");
-        source(project, "src");
-        mojo(project, (root, output, cp) -> fail("Unexpected analysis")).execute();
-        assertFalse(Files.exists(directory.resolve("target")));
-    }
+  @Test
+  void skipsPomModules() throws Exception {
+    MavenProject project = project("pom");
+    source(project, "src");
+    mojo(project, (root, output, cp) -> fail("Unexpected analysis")).execute();
+    assertFalse(Files.exists(directory.resolve("target")));
+  }
 
-    @Test void honorsSkip() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> fail("Unexpected analysis"));
-        set(mojo, "skip", true);
-        mojo.execute();
-        assertFalse(Files.exists(directory.resolve("target")));
-    }
+  @Test
+  void honorsSkip() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    GenerateMojo mojo = mojo(project, (root, output, cp) -> fail("Unexpected analysis"));
+    set(mojo, "skip", true);
+    mojo.execute();
+    assertFalse(Files.exists(directory.resolve("target")));
+  }
 
-    @Test void snapshotsCompiledClassesWithoutResources() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        Path classes = Files.createDirectories(directory.resolve("target/classes/sample"));
-        Files.write(classes.resolve("Type.class"), new byte[] {1, 2, 3});
-        Files.writeString(classes.resolve("secret.properties"), "excluded resource");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> {
-            assertEquals(1, cp.size());
-            try (JarFile jar = new JarFile(cp.getFirst())) {
+  @Test
+  void snapshotsCompiledClassesWithoutResources() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    Path classes = Files.createDirectories(directory.resolve("target/classes/sample"));
+    Files.write(classes.resolve("Type.class"), new byte[] {1, 2, 3});
+    Files.writeString(classes.resolve("secret.properties"), "excluded resource");
+    GenerateMojo mojo =
+        mojo(
+            project,
+            (root, output, cp) -> {
+              assertEquals(1, cp.size());
+              try (JarFile jar = new JarFile(cp.getFirst())) {
                 assertNotNull(jar.getEntry("sample/Type.class"));
                 assertNull(jar.getEntry("sample/secret.properties"));
-            }
-            Files.writeString(output, "[]");
-        });
-        mojo.execute();
-        assertFalse(Files.exists(Path.of(classpathEntries.getFirst())));
-        assertClean();
-    }
+              }
+              Files.writeString(output, "[]");
+            });
+    mojo.execute();
+    assertFalse(Files.exists(Path.of(classpathEntries.getFirst())));
+    assertClean();
+  }
 
-    @Test void validatesTimeout() throws Exception {
-        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> fail("Unexpected analysis"));
-        set(mojo, "timeoutSeconds", 0);
-        assertThrows(MojoExecutionException.class, mojo::execute);
-    }
+  @Test
+  void validatesTimeout() throws Exception {
+    GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> fail("Unexpected analysis"));
+    set(mojo, "timeoutSeconds", 0);
+    assertThrows(MojoExecutionException.class, mojo::execute);
+  }
 
-    @Test void rejectsMalformedJavaBeforeInvokingAnalyzer() throws Exception {
-        MavenProject project = project("jar");
-        Path root = source(project, "src");
-        Files.writeString(root.resolve("Invalid.java"), "public class Invalid { NOT JAVA }");
-        GenerateMojo mojo = mojo(project, (source, output, cp) -> fail("Invalid input reached the analyzer"));
-        assertTrue(assertThrows(MojoExecutionException.class, mojo::execute).getMessage().contains("Invalid Java source"));
-        assertClean();
-    }
+  @Test
+  void rejectsMalformedJavaBeforeInvokingAnalyzer() throws Exception {
+    MavenProject project = project("jar");
+    Path root = source(project, "src");
+    Files.writeString(root.resolve("Invalid.java"), "public class Invalid { NOT JAVA }");
+    GenerateMojo mojo =
+        mojo(project, (source, output, cp) -> fail("Invalid input reached the analyzer"));
+    assertTrue(
+        assertThrows(MojoExecutionException.class, mojo::execute)
+            .getMessage()
+            .contains("Invalid Java source"));
+    assertClean();
+  }
 
-    @Test void rejectsAnalyzerOmissionOfValidTopLevelTypes() throws Exception {
-        MavenProject project = project("jar");
-        Path root = source(project, "src");
-        Files.writeString(root.resolve("Actual.java"), "package sample; public class Actual {}");
-        GenerateMojo mojo = mojo(project, (source, output, cp) -> Files.writeString(output, "[]"));
-        assertTrue(assertThrows(MojoExecutionException.class, mojo::execute).getMessage().contains("sample.Actual"));
-        assertFalse(Files.exists(directory.resolve("target/dendrodocs.json")));
-        assertClean();
-    }
+  @Test
+  void rejectsAnalyzerOmissionOfValidTopLevelTypes() throws Exception {
+    MavenProject project = project("jar");
+    Path root = source(project, "src");
+    Files.writeString(root.resolve("Actual.java"), "package sample; public class Actual {}");
+    GenerateMojo mojo = mojo(project, (source, output, cp) -> Files.writeString(output, "[]"));
+    assertTrue(
+        assertThrows(MojoExecutionException.class, mojo::execute)
+            .getMessage()
+            .contains("sample.Actual"));
+    assertFalse(Files.exists(directory.resolve("target/dendrodocs.json")));
+    assertClean();
+  }
 
-    @Test void preservesInterruptionAndCleansTemporaryFiles() throws Exception {
-        MavenProject project = project("jar");
-        source(project, "src");
-        GenerateMojo mojo = mojo(project, (root, output, cp) -> { throw new InterruptedException(); });
-        try {
-            assertThrows(MojoExecutionException.class, mojo::execute);
-            assertTrue(Thread.currentThread().isInterrupted());
-        } finally {
-            Thread.interrupted();
-        }
-        assertClean();
+  @Test
+  void preservesInterruptionAndCleansTemporaryFiles() throws Exception {
+    MavenProject project = project("jar");
+    source(project, "src");
+    GenerateMojo mojo =
+        mojo(
+            project,
+            (root, output, cp) -> {
+              throw new InterruptedException();
+            });
+    try {
+      assertThrows(MojoExecutionException.class, mojo::execute);
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted();
     }
+    assertClean();
+  }
 
-    @Test void defaultsToJavaTool() throws Exception {
-        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
-        assertEquals("dev.dendrodocs:tool:jar:0.1.0", mojo.selectedTool().toString());
-        assertTrue(mojo.javaValidationEnabled(mojo.selectedTool()));
+  @Test
+  void defaultsToJavaTool() throws Exception {
+    GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+    assertEquals("dev.dendrodocs:tool:jar:0.1.0", mojo.selectedTool().toString());
+    assertTrue(mojo.javaValidationEnabled(mojo.selectedTool()));
+  }
+
+  @Test
+  void acceptsAlternativeToolAndClassifier() throws Exception {
+    GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+    set(mojo, "toolArtifact", "example:kotlin-tool:jar:all:1.2.3");
+    assertEquals("example:kotlin-tool:jar:all:1.2.3", mojo.selectedTool().toString());
+    assertFalse(mojo.javaValidationEnabled(mojo.selectedTool()));
+    set(mojo, "toolArtifact", "example:kotlin-tool:1.2.3");
+    assertEquals("example:kotlin-tool:jar:1.2.3", mojo.selectedTool().toString());
+  }
+
+  @Test
+  void rejectsInvalidToolCoordinates() throws Exception {
+    GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+    for (String coordinate :
+        List.of(
+            "",
+            " ",
+            "group:artifact",
+            ":tool:1",
+            "group::1",
+            "group:tool:zip:1",
+            "group:tool:LATEST",
+            "group:tool:RELEASE",
+            "group:tool:[1,2)",
+            "group:tool:1 2",
+            "group:tool:jar::1")) {
+      set(mojo, "toolArtifact", coordinate);
+      assertThrows(IOException.class, mojo::selectedTool, coordinate);
     }
+  }
 
-    @Test void acceptsAlternativeToolAndClassifier() throws Exception {
-        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
-        set(mojo, "toolArtifact", "example:kotlin-tool:jar:all:1.2.3");
-        assertEquals("example:kotlin-tool:jar:all:1.2.3", mojo.selectedTool().toString());
-        assertFalse(mojo.javaValidationEnabled(mojo.selectedTool()));
-        set(mojo, "toolArtifact", "example:kotlin-tool:1.2.3");
-        assertEquals("example:kotlin-tool:jar:1.2.3", mojo.selectedTool().toString());
-    }
-
-    @Test void rejectsInvalidToolCoordinates() throws Exception {
-        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
-        for (String coordinate : List.of("", " ", "group:artifact", ":tool:1", "group::1",
-                "group:tool:zip:1", "group:tool:LATEST", "group:tool:RELEASE",
-                "group:tool:[1,2)", "group:tool:1 2", "group:tool:jar::1")) {
-            set(mojo, "toolArtifact", coordinate);
-            assertThrows(IOException.class, mojo::selectedTool, coordinate);
-        }
-    }
-
-    @Test void alternativeToolOwnsLanguageValidation() throws Exception {
-        MavenProject project = project("jar");
-        Path root = source(project, "src/main/kotlin");
-        Files.writeString(root.resolve("Ignored.java"), "this is deliberately invalid Java");
-        Files.writeString(root.resolve("Example.kt"), "package sample\nclass Example");
-        GenerateMojo mojo = mojo(project, (source, output, cp) ->
+  @Test
+  void alternativeToolOwnsLanguageValidation() throws Exception {
+    MavenProject project = project("jar");
+    Path root = source(project, "src/main/kotlin");
+    Files.writeString(root.resolve("Ignored.java"), "this is deliberately invalid Java");
+    Files.writeString(root.resolve("Example.kt"), "package sample\nclass Example");
+    GenerateMojo mojo =
+        mojo(
+            project,
+            (source, output, cp) ->
                 Files.writeString(output, "[{\"FullName\":\"sample.Example\"}]"));
-        set(mojo, "toolArtifact", "example:kotlin-tool:1");
-        mojo.execute();
-        assertEquals(1, visited.size());
-        assertTrue(Files.readString(directory.resolve("target/dendrodocs.json")).contains("sample.Example"));
-        assertClean();
-    }
+    set(mojo, "toolArtifact", "example:kotlin-tool:1");
+    mojo.execute();
+    assertEquals(1, visited.size());
+    assertTrue(
+        Files.readString(directory.resolve("target/dendrodocs.json")).contains("sample.Example"));
+    assertClean();
+  }
 
-    @Test void explicitJavaValidationAppliesToAlternativeTool() throws Exception {
-        MavenProject project = project("jar");
-        Path root = source(project, "src");
-        Files.writeString(root.resolve("Invalid.java"), "not Java");
-        GenerateMojo mojo = mojo(project, (source, output, cp) -> fail("Unexpected analysis"));
-        set(mojo, "toolArtifact", "example:java-fork:1");
-        set(mojo, "validateJava", true);
-        assertTrue(assertThrows(MojoExecutionException.class, mojo::execute).getMessage().contains("Invalid Java source"));
-        assertClean();
-    }
+  @Test
+  void explicitJavaValidationAppliesToAlternativeTool() throws Exception {
+    MavenProject project = project("jar");
+    Path root = source(project, "src");
+    Files.writeString(root.resolve("Invalid.java"), "not Java");
+    GenerateMojo mojo = mojo(project, (source, output, cp) -> fail("Unexpected analysis"));
+    set(mojo, "toolArtifact", "example:java-fork:1");
+    set(mojo, "validateJava", true);
+    assertTrue(
+        assertThrows(MojoExecutionException.class, mojo::execute)
+            .getMessage()
+            .contains("Invalid Java source"));
+    assertClean();
+  }
 
-    @Test void canDisableJavaPreflightExplicitly() throws Exception {
-        MavenProject project = project("jar");
-        Path root = source(project, "src");
-        Files.writeString(root.resolve("Invalid.java"), "not Java");
-        GenerateMojo mojo = mojo(project, (source, output, cp) -> Files.writeString(output, "[]"));
-        set(mojo, "validateJava", false);
-        mojo.execute();
-        assertEquals(1, visited.size());
-        assertClean();
-    }
+  @Test
+  void canDisableJavaPreflightExplicitly() throws Exception {
+    MavenProject project = project("jar");
+    Path root = source(project, "src");
+    Files.writeString(root.resolve("Invalid.java"), "not Java");
+    GenerateMojo mojo = mojo(project, (source, output, cp) -> Files.writeString(output, "[]"));
+    set(mojo, "validateJava", false);
+    mojo.execute();
+    assertEquals(1, visited.size());
+    assertClean();
+  }
 
-    @Test void differentVersionOfDefaultJavaToolRetainsPreflight() throws Exception {
-        GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
-        set(mojo, "toolArtifact", "dev.dendrodocs:tool:2.0.0");
-        assertTrue(mojo.javaValidationEnabled(mojo.selectedTool()));
-    }
-    @FunctionalInterface interface RootAction {
-        void run(Path root, Path output, List<String> classpath) throws IOException, InterruptedException;
-    }
+  @Test
+  void differentVersionOfDefaultJavaToolRetainsPreflight() throws Exception {
+    GenerateMojo mojo = mojo(project("jar"), (root, output, cp) -> {});
+    set(mojo, "toolArtifact", "dev.dendrodocs:tool:2.0.0");
+    assertTrue(mojo.javaValidationEnabled(mojo.selectedTool()));
+  }
+
+  @FunctionalInterface
+  interface RootAction {
+    void run(Path root, Path output, List<String> classpath)
+        throws IOException, InterruptedException;
+  }
 }

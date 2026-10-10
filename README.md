@@ -111,7 +111,9 @@ A child JVM isolates bundled analyzer libraries from Maven; it is not a security
 ./mvnw verify
 ```
 
-Verification runs unit tests and real Maven integration builds. See [testing](docs/testing/README.md), [release procedure](docs/releasing.md), and [dependency intake](docs/security/README.md).
+Spotless checks Java and POM formatting during validate. Apply formatting with `./mvnw spotless:apply` (Windows: `mvnw.cmd spotless:apply`). The rules follow the Java tool's Google Java format and POM sorting conventions.
+
+Verification runs unit tests and real Maven integration builds. JaCoCo writes unit-test coverage to `target/site/jacoco/index.html` and `target/site/jacoco/jacoco.xml`; CI uploads these reports. See [testing](docs/testing/README.md), [release procedure](docs/releasing.md), and [dependency intake](docs/security/README.md).
 
 ## Architecture
 

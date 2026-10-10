@@ -22,6 +22,8 @@ The scan covers Maven metadata in a minimized JAR and does not establish exploit
 Dependabot cannot see these embedded versions or the filtered default analyzer coordinates automatically.
 Maintainers must rerun this audit when changing the analyzer artifact. Pass -ToolArtifact and, if necessary, -ArtifactPath to assess the same alternative JAR selected in a consumer build; CI and release gating assess the embedded default tool.
 
+Spotless 3.10.4 and JaCoCo 0.8.15 are pinned build tools from approved Maven Central, monitored by Dependabot. The formatter configuration follows the current [Java tool POM](https://github.com/dendrodocs/java-tool/blob/main/pom.xml), including pinned google-java-format 1.23.0; POM sorting uses the library default pinned by the Spotless release. Spotless executes formatters during checks and writes source only when explicitly applying changes. JaCoCo instruments the unit-test JVM; these tools do not enter the consumer plugin's runtime dependency graph. Manual formatting and unreported coverage were the alternatives; automatic checks provide repeatable enforcement and reviewable evidence.
+
 Before a production release, review the embedded analyzer components and current advisories,
 Windows/Linux CI, signing credentials, Central namespace ownership, and the staged bundle.
 A process boundary isolates Java libraries; it does not isolate filesystem or network access.

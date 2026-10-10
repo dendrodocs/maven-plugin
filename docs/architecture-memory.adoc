@@ -49,7 +49,7 @@ Source: link:arc42/09-architectural-decisions.adoc[arc42].
 
 == quality
 
-Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse.
+Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse; Spotless validates formatting and JaCoCo reports unit-test coverage.
 Source: link:arc42/10-quality-requirements.adoc[arc42].
 
 == risks

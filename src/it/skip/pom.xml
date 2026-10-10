@@ -1,3 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion><groupId>test</groupId><artifactId>skip</artifactId><version>1</version>
-  <build><plugins><plugin><groupId>dev.dendrodocs</groupId><artifactId>dendrodocs-maven-plugin</artifactId><version>@pluginVersion@</version></plugin></plugins></build>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>test</groupId>
+  <artifactId>skip</artifactId>
+  <version>1</version>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>dev.dendrodocs</groupId>
+        <artifactId>dendrodocs-maven-plugin</artifactId>
+        <version>@pluginVersion@</version>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -52,6 +52,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
           path: |
+            target/site/jacoco/
             target/surefire-reports/*.xml
             target/invoker-reports/*.xml
             target/security/*.json

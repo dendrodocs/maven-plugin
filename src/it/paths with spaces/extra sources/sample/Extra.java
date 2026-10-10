@@ -1,2 +1,5 @@
 package sample;
-public class Extra { public Primary primary; }
+
+public class Extra {
+  public Primary primary;
+}

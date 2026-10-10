@@ -1,9 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion><parent><groupId>test</groupId><artifactId>alternate-tool</artifactId><version>1</version></parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>test</groupId>
+    <artifactId>alternate-tool</artifactId>
+    <version>1</version>
+  </parent>
   <artifactId>consumer-xml</artifactId>
-  <dependencies><dependency><groupId>test</groupId><artifactId>fixture-analyzer</artifactId><version>1</version></dependency></dependencies>
-  <build><plugins><plugin><groupId>dev.dendrodocs</groupId><artifactId>dendrodocs-maven-plugin</artifactId><version>@pluginVersion@</version>
-    <configuration><toolArtifact>test:fixture-analyzer:1</toolArtifact><sourceDirectories><sourceDirectory>src/main/kotlin</sourceDirectory></sourceDirectories></configuration>
-    <executions><execution><goals><goal>generate</goal></goals></execution></executions>
-  </plugin></plugins></build>
+  <dependencies>
+    <dependency>
+      <groupId>test</groupId>
+      <artifactId>fixture-analyzer</artifactId>
+      <version>1</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>dev.dendrodocs</groupId>
+        <artifactId>dendrodocs-maven-plugin</artifactId>
+        <version>@pluginVersion@</version>
+        <configuration>
+          <toolArtifact>test:fixture-analyzer:1</toolArtifact>
+          <sourceDirectories>
+            <sourceDirectory>src/main/kotlin</sourceDirectory>
+          </sourceDirectories>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

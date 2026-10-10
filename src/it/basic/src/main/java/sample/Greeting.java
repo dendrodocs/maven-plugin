@@ -1,6 +1,7 @@
 package sample;
+
 /** A documented greeting. */
 public class Greeting {
-    /** The greeting text. */
-    public String message;
+  /** The greeting text. */
+  public String message;
 }

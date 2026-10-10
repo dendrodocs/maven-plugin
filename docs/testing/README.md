@@ -3,6 +3,10 @@
 Run `./mvnw verify` or `mvnw.cmd verify`.
 The wrapper uses Maven 3.10.0; CI also runs the complete suite on the minimum supported Maven 3.9.11, on Windows and Linux with JDK 21.
 
+Spotless checks plugin/test Java, valid integration fixture Java, and all fixture/root POMs during `validate`. Run `./mvnw spotless:apply` to apply the same Google Java format and semantic import ordering used by the Java tool. Deliberately malformed Java in the `invalid-source` and `skip` fixtures and the alternative-tool `Ignored.java` inputs is excluded; generated sources are outside the formatter's includes.
+
+JaCoCo instruments the unit-test JVM and generates HTML/XML reports during `verify` in `target/site/jacoco`. Maven-generated HelpMojo code is excluded. The report does not include child analyzer JVMs or the separate Invoker consumer builds, and no coverage threshold is claimed. CI uploads the reports for each platform and Maven version.
+
 Unit tests cover source selection, duplicate detection, malformed input, fresh-output checks,
 previous-output preservation, compact JSON, skip behavior, temporary classpath JARs,
 tool coordinate validation, conditional Java preflight, interruption, child-process exit diagnostics, missing analyzer output, omitted top-level types, and timeouts.

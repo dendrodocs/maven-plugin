@@ -23,5 +23,6 @@ The adapter must not introduce changes to the shared intermediary JSON schema.
 
 Usage guides use Markdown, architecture uses AsciiDoc, and diagrams use PlantUML.
 Java packages live under dev.dendrodocs.maven.
+Use Spotless with the Java tool's Google Java format and semantic import ordering, plus SortPom settings; valid source uses two-space Java indentation and LF line endings. Deliberately malformed fixtures remain excluded.
 
 NOTE: Derived context is available in link:../architecture-memory.adoc[architecture memory] and `.agents/architecture-memory.yaml`. Arc42, ADRs, and contracts remain the source documents; refresh derived context after source changes.

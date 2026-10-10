@@ -1,6 +1,6 @@
 metadata:
   status: current
-  generated_at: 2026-10-10T11:05:59Z
+  generated_at: 2026-10-10T11:11:04Z
   arc42_home: docs/arc42
   human_memory_path: docs/architecture-memory.adoc
 sources:
@@ -63,7 +63,7 @@ summary:
     sources:
       - docs/arc42/09-architectural-decisions.adoc
   quality:
-    text: "Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse."
+    text: "Executable coverage of errors, reactors, roots, paths, timeout, and offline reuse; Spotless validates formatting and JaCoCo reports unit-test coverage."
     sources:
       - docs/arc42/10-quality-requirements.adoc
   risks:
