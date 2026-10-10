@@ -1,0 +1,46 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }}, JDK 21)
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify
+        shell: bash
+        run: ./mvnw --batch-mode --no-transfer-progress verify
+      - name: Report embedded analyzer advisories
+        shell: pwsh
+        run: ./scripts/Audit-Analyzer.ps1
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verification-${{ matrix.os }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            target/surefire-reports/*.xml
+            target/invoker-reports/*.xml
+            target/security/*.json
+            target/it/**/build.log
