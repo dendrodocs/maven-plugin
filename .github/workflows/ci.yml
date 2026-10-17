@@ -32,7 +32,7 @@ jobs:
           $properties = $properties -replace 'distributionUrl=.*', 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip'
           $properties = $properties -replace 'distributionSha256Sum=.*', 'distributionSha256Sum=0d7125e8c91097b36edb990ea5934e6c68b4440eef4ea96510a0f6815e7eeadb'
           [IO.File]::WriteAllText($path, $properties, [Text.UTF8Encoding]::new($false))
-      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: '21'
